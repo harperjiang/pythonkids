@@ -31,6 +31,8 @@ class Bullet(Object):
     def __init__(self, x, y):
         super().__init__(x, y, 10, 5)
 
+    def draw(self, window):
+        pygame.draw.rect(window, (128, 128, 128), [self.x, self.y, self.width, self.height], 0)
 
 class Monster(Object):
     def __init__(self, x, y):

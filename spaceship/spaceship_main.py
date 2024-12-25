@@ -1,6 +1,7 @@
 import pygame
 
-from spaceship import Spaceship, Monster, RewardItem
+from spaceship import Spaceship, Monster, RewardItem, Bullet
+from world import World
 
 pygame.init()
 
@@ -8,10 +9,10 @@ window = pygame.display.set_mode((1200, 500))
 
 running = True
 
-spaceship = Spaceship(100,100)
+world = World()
 
-monster001 = Monster(500, 100)
-reward001 = RewardItem(600, 200)
+spaceship = Spaceship(100,100)
+world.add(spaceship)
 
 while running:
     for event in pygame.event.get():
@@ -22,11 +23,10 @@ while running:
                 spaceship.move((0, 50))
             if event.key == pygame.K_UP:
                 spaceship.move((0, -50))
+            if event.key == pygame.K_RIGHT:
+                world.add(Bullet(spaceship.x + spaceship.width, spaceship.y + spaceship.height / 2))
 
     window.fill((0, 0, 0))
 
-    spaceship.draw(window)
-    monster001.draw(window)
-    reward001.draw(window)
-
+    world.draw(window)
     pygame.display.update()
