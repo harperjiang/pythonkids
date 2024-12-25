@@ -7,10 +7,6 @@ class Object:
         self.width = width
         self.height = height
 
-    def move(self, dir):
-        self.x += dir[0]
-        self.y += dir[1]
-
 class Spaceship(Object):
     def __init__(self, x, y):
         super().__init__(x, y, 120, 90)
