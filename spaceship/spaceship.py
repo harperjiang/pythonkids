@@ -8,6 +8,11 @@ class Object:
         self.height = height
 
     def move(self, direction):
+        # if we are going out of the screen, do nothing
+        newx = self.x + direction[0]
+        newy = self.y + direction[1]
+        if newx < 0 or newy < 0 or newx + self.width > 1200 or newy  + self.height > 500:
+            return
         self.x += direction[0]
         self.y += direction[1]
 
