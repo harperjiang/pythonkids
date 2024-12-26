@@ -1,6 +1,6 @@
 import pygame
 
-from spaceship import Spaceship, Monster, RewardItem, Bullet
+from spaceship import Spaceship, Monster
 from world import World
 
 pygame.init()

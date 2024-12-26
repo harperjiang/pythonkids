@@ -36,8 +36,7 @@ class Spaceship(Object):
         pygame.draw.rect(window, (255, 223, 0), [self.x + 90, self.y + 40, 30, 10], 0) # laser gun
 
     def shoot(self):
-        self.world.add(Bullet(self.world, self.x + self.width, self.y + self.height / 2))
-
+        self.world.add(Bullet(self.world, self.x + self.width, self.y + self.height / 2 - 2))
 
 class Bullet(Object):
     def __init__(self, world, x, y):
@@ -48,7 +47,7 @@ class Bullet(Object):
         pygame.draw.rect(window, (128, 128, 128), [self.x, self.y, self.width, self.height], 0)
 
     def update(self):
-        self.move((1, 0))
+        self.move((0.5, 0))
 
 class Monster(Object):
     def __init__(self, world, x, y):

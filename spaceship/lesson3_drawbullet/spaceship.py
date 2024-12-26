@@ -7,7 +7,6 @@ class Object:
         self.y = y
         self.width = width
         self.height = height
-        self.destroyOnBoundary = False
         world.objects.append(self)
 
     def move(self, direction):
@@ -15,10 +14,7 @@ class Object:
         newx = self.x + direction[0]
         newy = self.y + direction[1]
         if not self.world.visible((newx, newy, self.width, self.height)):
-            if self.destroyOnBoundary:
-                self.world.remove(self)
-            else:
-                return
+            return
         self.x += direction[0]
         self.y += direction[1]
 
@@ -36,19 +32,15 @@ class Spaceship(Object):
         pygame.draw.rect(window, (255, 223, 0), [self.x + 90, self.y + 40, 30, 10], 0) # laser gun
 
     def shoot(self):
-        self.world.add(Bullet(self.world, self.x + self.width, self.y + self.height / 2))
+        self.world.add(Bullet(self.world, self.x + self.width, self.y + self.height / 2 - 2))
 
 
 class Bullet(Object):
     def __init__(self, world, x, y):
         super().__init__(world, x, y, 10, 5)
-        self.destroyOnBoundary = True
 
     def draw(self, window):
         pygame.draw.rect(window, (128, 128, 128), [self.x, self.y, self.width, self.height], 0)
-
-    def update(self):
-        self.move((1, 0))
 
 class Monster(Object):
     def __init__(self, world, x, y):

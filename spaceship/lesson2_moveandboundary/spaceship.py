@@ -1,33 +1,24 @@
 import pygame
 
 class Object:
-    def __init__(self, world, x, y, width, height):
-        self.world = world
+    def __init__(self, x, y, width, height):
         self.x = x
         self.y = y
         self.width = width
         self.height = height
-        self.destroyOnBoundary = False
-        world.objects.append(self)
 
     def move(self, direction):
         # if we are going out of the screen, do nothing
         newx = self.x + direction[0]
         newy = self.y + direction[1]
-        if not self.world.visible((newx, newy, self.width, self.height)):
-            if self.destroyOnBoundary:
-                self.world.remove(self)
-            else:
-                return
+        if newx < 0 or newy < 0 or newx + self.width > 1200 or newy  + self.height > 500:
+            return
         self.x += direction[0]
         self.y += direction[1]
 
-    def update(self):
-        pass
-
 class Spaceship(Object):
-    def __init__(self, world, x, y):
-        super().__init__(world, x, y, 120, 90)
+    def __init__(self, x, y):
+        super().__init__(x, y, 120, 90)
 
     def draw(self, window):
         pygame.draw.rect(window, (255, 165, 0), [self.x, self.y, 40, 20], 0) # top wing
@@ -35,24 +26,15 @@ class Spaceship(Object):
         pygame.draw.rect(window, (255, 165, 0), [self.x, self.y + 70, 40, 20], 0) # bottom wing
         pygame.draw.rect(window, (255, 223, 0), [self.x + 90, self.y + 40, 30, 10], 0) # laser gun
 
-    def shoot(self):
-        self.world.add(Bullet(self.world, self.x + self.width, self.y + self.height / 2))
-
 
 class Bullet(Object):
-    def __init__(self, world, x, y):
-        super().__init__(world, x, y, 10, 5)
-        self.destroyOnBoundary = True
+    def __init__(self, x, y):
+        super().__init__(x, y, 10, 5)
 
-    def draw(self, window):
-        pygame.draw.rect(window, (128, 128, 128), [self.x, self.y, self.width, self.height], 0)
-
-    def update(self):
-        self.move((1, 0))
 
 class Monster(Object):
-    def __init__(self, world, x, y):
-        super().__init__(world, x, y, 40, 40)
+    def __init__(self, x, y):
+        super().__init__(x, y, 40, 40)
 
     def draw(self, window):
         pygame.draw.rect(window, (0, 255, 0), [self.x, self.y, 40, 40], 0)
@@ -62,8 +44,8 @@ class Monster(Object):
 
 
 class RewardItem(Object):
-    def __init__(self, world, x, y):
-        super().__init__(world, x, y, 40, 40)
+    def __init__(self, x, y):
+        super().__init__(x, y, 40, 40)
 
     def draw(self, window):
         heart_color = (255, 0, 0)

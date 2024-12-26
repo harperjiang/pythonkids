@@ -1,6 +1,6 @@
 import pygame
 
-from spaceship import Spaceship, Monster, RewardItem, Bullet
+from spaceship import Spaceship
 from world import World
 
 pygame.init()
@@ -12,7 +12,6 @@ running = True
 world = World(1200, 500)
 
 spaceship = Spaceship(world, 100,100)
-monster = Monster(world, 400, 300)
 
 while running:
     for event in pygame.event.get():
@@ -20,9 +19,9 @@ while running:
             running = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_DOWN:
-                spaceship.move((0, 20))
+                spaceship.move((0, 50))
             if event.key == pygame.K_UP:
-                spaceship.move((0, -20))
+                spaceship.move((0, -50))
             if event.key == pygame.K_RIGHT:
                 spaceship.shoot()
 
