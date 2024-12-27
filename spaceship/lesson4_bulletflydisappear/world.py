@@ -24,3 +24,11 @@ class World:
     def draw(self, window):
         for obj in self.objects:
             obj.draw(window)
+
+    def on_impact(self, obj, new_rect):
+        if self.visible(new_rect):
+            return False
+        if type(obj).__name__ == 'Bullet':
+            obj.destroy(self)
+            return False
+        return True

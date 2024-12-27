@@ -1,12 +1,3 @@
-def when_impact(obj_i, obj_j):
-    world = obj_i.world
-    if type(obj_i).__name__ == 'Bullet' and type(obj_j).__name__ == 'Bullet':
-        world.remove(obj_j)
-    elif type(obj_i).__name__ == 'Bullet' and type(obj_j).__name__ == 'Monster' or \
-        type(obj_j).__name__ == 'Bullet' and type(obj_i).__name__ == 'Monster':
-        world.remove(obj_i)
-        world.remove(obj_j)
-
 
 class World:
     def __init__(self, width, height):
@@ -30,13 +21,13 @@ class World:
         self.to_remove.clear()
         for obj in self.objects:
             obj.update()
-        self.detect_impact(when_impact)
+        self.detect_impact()
 
     def draw(self, window):
         for obj in self.objects:
             obj.draw(window)
 
-    def detect_impact(self, callback):
+    def detect_impact(self):
         length = len(self.objects)
         for i in range(length):
             for j in range(i + 1, length):
@@ -46,5 +37,20 @@ class World:
                     and obj_i.x + obj_i.width > obj_j.x \
                     and obj_i.y < obj_j.y + obj_j.height \
                     and obj_i.y + obj_i.height > obj_j.y:
-                    callback(obj_i, obj_j)
+                    self.on_object_impact(obj_i, obj_j)
 
+    def on_object_impact(self, obj_i, obj_j):
+        if type(obj_i).__name__ == 'Bullet' and type(obj_j).__name__ == 'Bullet':
+            obj_j.destroy(obj_i)
+        elif type(obj_i).__name__ == 'Bullet' and type(obj_j).__name__ == 'Monster' or \
+                type(obj_j).__name__ == 'Bullet' and type(obj_i).__name__ == 'Monster':
+            obj_i.destroy(obj_j)
+            obj_j.destroy(obj_i)
+
+    def on_impact(self, obj, new_rect):
+        if self.visible(new_rect):
+            return False
+        if type(obj).__name__ == 'Bullet':
+            obj.destroy(self)
+            return False
+        return True

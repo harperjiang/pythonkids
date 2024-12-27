@@ -26,6 +26,9 @@ class Object:
     def update(self):
         pass
 
+    def destroy(self, cause):
+        self.world.remove(self)
+
 class Spaceship(Object):
     def __init__(self, world, x, y):
         super().__init__(world, x, y, 120, 90)

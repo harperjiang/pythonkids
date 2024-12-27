@@ -14,16 +14,15 @@ class Object:
         # if we are going out of the screen, do nothing
         newx = self.x + direction[0]
         newy = self.y + direction[1]
-        if not self.world.visible((newx, newy, self.width, self.height)):
-            if self.destroyOnBoundary:
-                self.world.remove(self)
-            else:
-                return
-        self.x += direction[0]
-        self.y += direction[1]
+        if not self.world.on_impact(self, (newx, newy, self.width, self.height)):
+            self.x += direction[0]
+            self.y += direction[1]
 
     def update(self):
         pass
+
+    def destroy(self, cause):
+        self.world.remove(self)
 
 class Spaceship(Object):
     def __init__(self, world, x, y):
