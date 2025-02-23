@@ -1,4 +1,5 @@
 import pygame
+import time
 import random
 
 class Object:
@@ -62,7 +63,15 @@ class Monster(Object):
         pygame.draw.rect(window, (0, 255, 0), [self.x, self.y, 40, 40], 0)
         pygame.draw.rect(window, (0, 0, 0), [self.x + 4, self.y + 8, 12, 8], 0) # left eye
         pygame.draw.rect(window, (0, 0, 0), [self.x + 24, self.y + 8, 12, 8], 0) # right eye
-        pygame.draw.rect(window, (0, 0, 0), [self.x + 4, self.y + 24, 32, 8], 0) # mouth
+
+        pygame.draw.rect(window, (0, 0, 0), [self.x + 8, self.y + 24, 24, 8], 0)  # mouth
+        if int(time.time() * 2) % 2 == 0:
+            pygame.draw.rect(window, (0, 0, 0), [self.x + 4, self.y + 22, 4, 8], 0) # mouth
+            pygame.draw.rect(window, (0, 0, 0), [self.x + 32, self.y + 22, 4, 8], 0) # mouth
+        else:
+            pygame.draw.rect(window, (0, 0, 0), [self.x + 4, self.y + 26, 4, 8], 0) # mouth
+            pygame.draw.rect(window, (0, 0, 0), [self.x + 32, self.y + 26, 4, 8], 0) # mouth
+
 
     def update(self):
         self.move((-0.1, random.randint(-5, 5)))
