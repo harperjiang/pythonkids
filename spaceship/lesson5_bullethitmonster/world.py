@@ -41,16 +41,12 @@ class World:
 
     def on_object_impact(self, obj_i, obj_j):
         if type(obj_i).__name__ == 'Bullet' and type(obj_j).__name__ == 'Bullet':
-            obj_j.destroy(obj_i)
-        elif type(obj_i).__name__ == 'Bullet' and type(obj_j).__name__ == 'Monster' or \
-                type(obj_j).__name__ == 'Bullet' and type(obj_i).__name__ == 'Monster':
-            obj_i.destroy(obj_j)
-            obj_j.destroy(obj_i)
+            obj_j.impact(obj_i)
+        else:
+            obj_i.impact(obj_j)
+            obj_j.impact(obj_i)
 
-    def on_impact(self, obj, new_rect):
+    def has_wall_impact(self, obj, new_rect):
         if self.visible(new_rect):
-            return False
-        if type(obj).__name__ == 'Bullet':
-            obj.destroy(self)
             return False
         return True
