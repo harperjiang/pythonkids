@@ -58,9 +58,13 @@ class Bullet(Object):
 class Monster(Object):
     def __init__(self, world, x, y):
         super().__init__(world, x, y, 40, 40)
+        self.life = 2
 
     def draw(self, window):
-        pygame.draw.rect(window, (0, 255, 0), [self.x, self.y, 40, 40], 0)
+        draw_color = (0, 255, 0) # Green initially
+        if self.life == 1:
+            draw_color = (255, 255, 0) # Change color when life changes
+        pygame.draw.rect(window, draw_color, [self.x, self.y, 40, 40], 0)
         pygame.draw.rect(window, (0, 0, 0), [self.x + 4, self.y + 8, 12, 8], 0) # left eye
         pygame.draw.rect(window, (0, 0, 0), [self.x + 24, self.y + 8, 12, 8], 0) # right eye
 
@@ -72,6 +76,13 @@ class Monster(Object):
             pygame.draw.rect(window, (0, 0, 0), [self.x + 4, self.y + 26, 4, 8], 0) # mouth
             pygame.draw.rect(window, (0, 0, 0), [self.x + 32, self.y + 26, 4, 8], 0) # mouth
 
+    def impact(self, cause):
+        if type(cause).__name__ == 'Bullet':
+            self.life -= 1
+            if self.life == 0:
+                super().impact(cause)
+        else:
+            super().impact(cause)
 
 class RewardItem(Object):
     def __init__(self, world, x, y):
