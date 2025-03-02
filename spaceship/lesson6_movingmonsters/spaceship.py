@@ -10,7 +10,7 @@ class Object:
         self.width = width
         self.height = height
         self.destroyOnBoundary = False
-        world.objects.append(self)
+        world.add(self)
 
     def move(self, direction):
         # if we are going out of the screen, do nothing
@@ -55,7 +55,7 @@ class Spaceship(Object):
         pass
 
     def shoot(self):
-        self.world.add(Bullet(self.world, self.x + self.width, self.y + self.height / 2))
+        Bullet(self.world, self.x + self.width, self.y + self.height / 2)
 
 
 class Bullet(Object):
@@ -87,7 +87,8 @@ class Monster(Object):
             pygame.draw.rect(window, (0, 0, 0), [self.x + 32, self.y + 26, 4, 8], 0) # mouth
 
     def update(self):
-        self.move((-0.1, random.randint(-5, 5)))
+        # self.move((-0.1, random.randint(-5, 5)))
+        self.move((-0.1, 0))
 
     def wall_impact(self, loc):
         # Monster only impact left wall
