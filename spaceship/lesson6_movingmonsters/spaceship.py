@@ -87,7 +87,8 @@ class Monster(Object):
             pygame.draw.rect(window, (0, 0, 0), [self.x + 32, self.y + 26, 4, 8], 0) # mouth
 
     def update(self):
-        self.move((-0.1, random.randint(-5, 5)))
+        # self.move((-0.1, random.randint(-5, 5)))
+        self.move((-0.1, 0))
 
     def wall_impact(self, loc):
         # Monster only impact left wall
