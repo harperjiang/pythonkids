@@ -9,7 +9,7 @@ class Object:
         self.width = width
         self.height = height
         self.destroyOnBoundary = False
-        world.objects.append(self)
+        world.add(self)
 
     def move(self, direction):
         # if we are going out of the screen, do nothing
@@ -41,7 +41,7 @@ class Spaceship(Object):
         pygame.draw.rect(window, (255, 223, 0), [self.x + 90, self.y + 40, 30, 10], 0) # laser gun
 
     def shoot(self):
-        self.world.add(Bullet(self.world, self.x + self.width, self.y + self.height / 2))
+        Bullet(self.world, self.x + self.width, self.y + self.height / 2)
 
 
 class Bullet(Object):
