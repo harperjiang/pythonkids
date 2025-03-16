@@ -41,13 +41,11 @@ class World:
         # Update existing objects
         for obj in self.objects:
             obj.update()
-
         self.detect_impact()
 
     def draw(self, window):
         for obj in self.objects:
             obj.draw(window)
-
         # Draw the scores
         window.blit(self.font.render("Score: {}".format(self.score), 0, (255, 240, 230)), (10, 10))
 
@@ -58,9 +56,9 @@ class World:
                 obj_i = self.objects[i]
                 obj_j = self.objects[j]
                 if obj_i.x < obj_j.x + obj_j.width \
-                    and obj_i.x + obj_i.width > obj_j.x \
-                    and obj_i.y < obj_j.y + obj_j.height \
-                    and obj_i.y + obj_i.height > obj_j.y:
+                        and obj_i.x + obj_i.width > obj_j.x \
+                        and obj_i.y < obj_j.y + obj_j.height \
+                        and obj_i.y + obj_i.height > obj_j.y:
                     self.on_object_impact(obj_i, obj_j)
 
     def on_object_impact(self, obj_i, obj_j):

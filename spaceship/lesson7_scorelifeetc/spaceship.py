@@ -97,6 +97,7 @@ class Monster(Object):
             pass
 
     def impact(self, cause):
+        super().impact(cause)
         if type(cause).__name__ == 'Bullet':
             self.world.score += 100
         else:
