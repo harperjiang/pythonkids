@@ -13,11 +13,12 @@ class World:
         self.last_update = self.start_time
         self.update_interval = 2
 
-        self.score = 0
-        self.lives = 3
+        self.spaceships = []
 
     def add(self, obj):
         self.objects.append(obj)
+        if type(obj).__name__ == 'Spaceship':
+            self.spaceships.append(obj)
 
     def remove(self, obj):
         self.to_remove.add(obj)
@@ -47,7 +48,7 @@ class World:
         for obj in self.objects:
             obj.draw(window)
         # Draw the scores
-        window.blit(self.font.render("Score: {}".format(self.score), 0, (255, 240, 230)), (10, 10))
+        window.blit(self.font.render("Score: {}".format(self.spaceships[0].score), 0, (255, 240, 230)), (10, 10))
 
     def detect_impact(self):
         length = len(self.objects)

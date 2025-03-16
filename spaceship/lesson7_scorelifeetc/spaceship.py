@@ -44,6 +44,9 @@ class Spaceship(Object):
     def __init__(self, world, x, y):
         super().__init__(world, x, y, 120, 90)
 
+        self.score = 0
+        self.lives = 3
+
     def draw(self, window):
         pygame.draw.rect(window, (255, 165, 0), [self.x, self.y, 40, 20], 0) # top wing
         pygame.draw.rect(window, (255, 255, 255), [self.x + 20, self.y + 20, 70, 50], 0) # body
@@ -55,13 +58,14 @@ class Spaceship(Object):
         pass
 
     def shoot(self):
-        Bullet(self.world, self.x + self.width, self.y + self.height / 2)
+        Bullet(self.world, self, self.x + self.width, self.y + self.height / 2)
 
 
 class Bullet(Object):
-    def __init__(self, world, x, y):
+    def __init__(self, world, owner, x, y):
         super().__init__(world, x, y, 10, 5)
         self.destroyOnBoundary = True
+        self.owner = owner
 
     def draw(self, window):
         pygame.draw.rect(window, (128, 128, 128), [self.x, self.y, self.width, self.height], 0)
@@ -99,9 +103,10 @@ class Monster(Object):
     def impact(self, cause):
         super().impact(cause)
         if type(cause).__name__ == 'Bullet':
-            self.world.score += 100
+            cause.owner.score += 100
         else:
-            self.world.score -= 1000
+            for ship in self.world.spaceships:
+                ship.score -= 1000
 
 class RewardItem(Object):
     def __init__(self, world, x, y):
