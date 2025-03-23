@@ -111,6 +111,8 @@ class Monster(Object):
         if type(cause).__name__ == 'Bullet':
             pygame.mixer.Sound.play(Sound(os.path.join('res','sounds','ding.wav')))
             cause.owner.score += 100
+        elif type(cause).__name__ == 'Monster':
+            pass
         else:
             for ship in self.world.spaceships:
                 ship.score -= 1000
