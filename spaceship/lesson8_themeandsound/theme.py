@@ -26,7 +26,6 @@ class StartTheme(Theme):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RETURN:
                 Theme.current_theme = MainTheme(self.window, self.font)
-                Theme.current_theme.update()
 
     def update(self):
         self.window.blit(self.title_image, (200, 100))
