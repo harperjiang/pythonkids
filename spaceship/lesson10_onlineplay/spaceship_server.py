@@ -5,8 +5,10 @@ import threading
 import uuid
 from time import sleep
 
-from message import Text, TextResponse
+from message import *
 from world import ServerWorld, World
+
+NAMES = {"StoutBog", "WornFlower", "SadDolphin", "SmileHog", "BurnCarrot"}
 
 def handle_client(stub):
     print(f"New connection from {stub.addr}")
@@ -21,44 +23,55 @@ def handle_client(stub):
                 msg.owner = stub.id
                 stub.server.messages.put(msg)
 
-            resp = stub.resp_queue.get()
-            stub.conn.sendall(pickle.dumps(resp))
+            resps = []
+            while len(resps) == 0:
+                while not stub.resp_queue.empty():
+                    resps.append(stub.resp_queue.get())
+            stub.conn.sendall(pickle.dumps(resps))
     stub.close()
 
 def execute_messages(server):
     while True:
-        sleep(0.2)
+        sleep(0.01)
         message = server.messages.get()
+        (_, sender) = server.clients[message.owner]
         match message:
-            case Text(text = t):
-                server.send(TextResponse(f"Echo:{t}", owner = message.owner))
+            case NewPlayerRequest():
+                print(f"New player {sender.name}")
+                server.send(TextResponse(f"Welcome, {sender.name}", owner = sender.id))
+            case TextRequest(text = t):
+                print(f"{sender.name} said: {t}")
+                server.send(TextResponse(f"{sender.name} said:{t}", owner = None))
+            case SyncRequest():
+                server.send(SyncResponse(owner = sender.id))
             case _:
                 pass
-
 
 class ClientStub:
     def __init__(self, server, conn, addr, resp_queue):
         self.server = server
         self.id = uuid.uuid4()
+        self.name = NAMES.pop()
         self.conn = conn
         self.addr = addr
         self.resp_queue = resp_queue
 
     def close(self):
         del self.server.clients[self.id]
+        NAMES.add(self.name)
 
 class Server:
     def __init__(self):
         self.executor_thread = None
         self.world = None
-        self.host = '127.0.0.1'
+        self.host = '0.0.0.0'
         self.port = 65432
 
         self.clients = {}
         self.messages = queue.Queue()
 
     def start(self):
-        self.executor_thread = threading.Thread(target=execute_messages, args=(self,), daemon=False)
+        self.executor_thread = threading.Thread(target=execute_messages, args=(self,), daemon=True)
         self.executor_thread.start()
 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -72,7 +85,7 @@ class Server:
                 client_queue = queue.Queue()
                 stub = ClientStub(self, conn, addr, client_queue)
 
-                client_thread = threading.Thread(target=handle_client, args=(stub,), daemon=False)
+                client_thread = threading.Thread(target=handle_client, args=(stub,), daemon=True)
                 self.clients[stub.id] = (client_thread, stub)
 
                 client_thread.start()
