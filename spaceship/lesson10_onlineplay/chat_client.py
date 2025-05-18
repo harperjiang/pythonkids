@@ -6,7 +6,7 @@ from time import sleep
 
 from message import *
 
-HOST = '127.0.0.1'  # Server address (localhost)
+HOST = 'www.tutorcan.com'  # Server address (localhost)
 PORT = 65432       # Server port
 
 send_queue = queue.Queue()
