@@ -32,20 +32,18 @@ def handle_client(stub):
 
 def execute_messages(server):
     while True:
-        sleep(0.01)
         message = server.messages.get()
         (_, sender) = server.clients[message.owner]
-        match message:
-            case NewPlayerRequest():
-                print(f"New player {sender.name}")
-                server.send(TextResponse(f"Welcome, {sender.name}", owner = sender.id))
-            case TextRequest(text = t):
-                print(f"{sender.name} said: {t}")
-                server.send(TextResponse(f"{sender.name} said:{t}", owner = None))
-            case SyncRequest():
-                server.send(SyncResponse(owner = sender.id))
-            case _:
-                pass
+        if isinstance(message, NewPlayerRequest):
+            print(f"New player {sender.name}")
+            server.send(TextResponse(f"Welcome, {sender.name}", owner = sender.id))
+        elif isinstance(message, TextRequest):
+            print(f"{sender.name} said: {message.text}")
+            server.send(TextResponse(f"{sender.name} said:{message.text}", owner = None))
+        elif isinstance(message, SyncRequest):
+            server.send(SyncResponse(owner = sender.id))
+        else:
+            pass
 
 class ClientStub:
     def __init__(self, server, conn, addr, resp_queue):

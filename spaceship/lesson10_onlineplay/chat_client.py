@@ -26,13 +26,12 @@ def talk_to_server():
         except:
             pass
         for resp in resps:
-            match resp:
-                case TextResponse(text=t, owner=_):
-                    print('[Server]', t)
-                case SyncResponse():
-                    pass
-                case _:
-                    print('Server: unrecognized response ' + resp)
+            if isinstance(resp, TextResponse):
+                print('[Server]', resp.text)
+            elif isinstance(resp, SyncResponse):
+                pass
+            else:
+                print('Server: unrecognized response ' + resp)
 
 if __name__ == '__main__':
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
