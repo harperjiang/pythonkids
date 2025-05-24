@@ -18,26 +18,24 @@ class NewPlayerRequest(Message):
     def __init__(self):
         pass
 
+class MoveRequest(Message):
+    def __init__(self, direction):
+        super().__init__(None)
+        self.direction = direction
+
+class ShootRequest(Message):
+    def __init__(self):
+        super().__init__(None)
+        
+class EmptyResponse(Message):
+    def __init__(self):
+        super().__init__(None)
+
 class SyncRequest(Message):
     def __init__(self):
         pass
 
 class SyncResponse(Message):
-    def __init__(self, owner):
+    def __init__(self, owner, objs):
         super().__init__(owner)
-
-class ObjectCreate(Message):
-    def __init__(self, object_type, object_id, requester_id, location):
-        self.object_type = object_type
-        self.object_id = object_id
-        self.requester_id = requester_id
-        self.location = location
-
-class ObjectRemove(Message):
-    def __init__(self, object_id):
-        self.object_id = object_id
-
-class ObjectMove(Message):
-    def __init__(self, object_id, direction):
-        self.object_id = object_id
-        self.direction = direction
+        self.objs = objs

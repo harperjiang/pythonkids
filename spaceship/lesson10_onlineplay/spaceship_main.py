@@ -1,5 +1,6 @@
 import os
 import pygame
+import time
 
 from spaceship import Spaceship
 from world import World
@@ -16,10 +17,12 @@ running = True
 
 pygame.mixer.music.load(os.path.join("res", "sounds", "theme.wav"))
 pygame.mixer.music.play(-1)
+pygame.mixer.set_num_channels(1)
 
 Theme.current_theme = StartTheme(window, font)
 
 while running:
+    time.sleep(0.01)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False

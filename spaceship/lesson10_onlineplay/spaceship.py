@@ -47,11 +47,17 @@ class Object:
         self.world.remove(self)
 
 class Spaceship(Object):
-    def __init__(self, world, x, y, color_type):
+    def __init__(self, world, x, y, color_type, name = None):
         super().__init__(world, x, y, 120, 90)
         self.score = 0
         self.lives = 3
         self.color_type = color_type
+
+        num_spaceship = len(world.spaceships)
+        if name is None:
+            self.name = "Player {}".format(num_spaceship + 1)
+        else:
+            self.name = name
 
     def draw(self, window):
         if self.color_type == 0:
@@ -71,7 +77,7 @@ class Spaceship(Object):
 
     def shoot(self):
         Bullet(self.world, self, self.x + self.width, self.y + self.height / 2)
-        pygame.mixer.Sound.play(Sound(os.path.join('res','sounds','shoot.wav')))
+        self.world.play_sound('shoot.wav')
 
 
 class Bullet(Object):
@@ -84,7 +90,7 @@ class Bullet(Object):
         pygame.draw.rect(window, (128, 128, 128), [self.x, self.y, self.width, self.height], 0)
 
     def update(self):
-        self.move((1, 0))
+        self.move((5, 0))
 
 class Monster(Object):
     def __init__(self, world, x, y):
@@ -104,12 +110,12 @@ class Monster(Object):
             pygame.draw.rect(window, (0, 0, 0), [self.x + 32, self.y + 26, 4, 8], 0) # mouth
 
     def update(self):
-        self.move((-0.1, random.randint(-5, 5)))
+        self.move((-0.5, random.randint(-5, 5)))
 
     def wall_impact(self, loc):
         # Monster only impact left wall
         if loc & 1 == 1: # Hit left wall
-            pygame.mixer.Sound.play(Sound(os.path.join('res','sounds','escape.wav')))
+            self.world.play_sound('escape.wav')
             self.impact(self.world)
         else:
             pass
@@ -117,7 +123,7 @@ class Monster(Object):
     def impact(self, cause):
         super().impact(cause)
         if type(cause).__name__ == 'Bullet':
-            pygame.mixer.Sound.play(Sound(os.path.join('res','sounds','ding.wav')))
+            self.world.play_sound('ding.wav')
             cause.owner.score += 100
         elif type(cause).__name__ == 'Monster':
             pass

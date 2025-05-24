@@ -1,12 +1,12 @@
-import pickle
 import queue
 import socket
 import threading
-import uuid
 from time import sleep
 
 from message import *
-from world import ServerWorld, World
+from network import *
+from world import *
+from spaceship import *
 
 NAMES = {"StoutBog", "WornFlower", "SadDolphin", "SmileHog", "BurnCarrot"}
 
@@ -14,20 +14,20 @@ def handle_client(stub):
     print(f"New connection from {stub.addr}")
     with stub.conn:
         while True:
-            data = stub.conn.recv(32768)
-            if not data:
+            try:
+                messages = safe_recv(stub.conn)
+                for msg in messages:
+                    msg.owner = stub.id
+                    stub.server.messages.put(msg)
+            except:
                 print(f"Connection from {stub.addr} closed")
-                break
-            messages = pickle.loads(data)
-            for msg in messages:
-                msg.owner = stub.id
-                stub.server.messages.put(msg)
+                pass
 
             resps = []
             while len(resps) == 0:
                 while not stub.resp_queue.empty():
                     resps.append(stub.resp_queue.get())
-            stub.conn.sendall(pickle.dumps(resps))
+            safe_send(stub.conn, resps)
     stub.close()
 
 def execute_messages(server):
@@ -36,14 +36,28 @@ def execute_messages(server):
         (_, sender) = server.clients[message.owner]
         if isinstance(message, NewPlayerRequest):
             print(f"New player {sender.name}")
+            server.joingame(sender)
             server.send(TextResponse(f"Welcome, {sender.name}", owner = sender.id))
         elif isinstance(message, TextRequest):
             print(f"{sender.name} said: {message.text}")
             server.send(TextResponse(f"{sender.name} said:{message.text}", owner = None))
         elif isinstance(message, SyncRequest):
-            server.send(SyncResponse(owner = sender.id))
+            server.send(SyncResponse(owner = sender.id, objs = server.world.dump()))
+        elif isinstance(message, MoveRequest):
+            server.world.spaceships_by_id[sender.id].move(message.direction)
+            server.send(EmptyResponse())
+        elif isinstance(message, ShootRequest):
+            server.world.spaceships_by_id[sender.id].shoot()
+            server.send(EmptyResponse())
         else:
             pass
+
+def update_world(server):
+    while server.world is not None:
+        world = server.world
+        sleep(0.01)
+        if world is not None:
+            world.update()
 
 class ClientStub:
     def __init__(self, server, conn, addr, resp_queue):
@@ -55,12 +69,13 @@ class ClientStub:
         self.resp_queue = resp_queue
 
     def close(self):
-        del self.server.clients[self.id]
+        self.server.disconnect(self.id)
         NAMES.add(self.name)
 
 class Server:
     def __init__(self):
         self.executor_thread = None
+        self.update_world_thread = None
         self.world = None
         self.host = '0.0.0.0'
         self.port = 65432
@@ -95,6 +110,24 @@ class Server:
         else:
             for (thread, stub) in self.clients.values():
                 stub.resp_queue.put(msg)
+
+    def joingame(self, client):
+        if self.world is None:
+            self.world = ServerWorld(WORLD_WIDTH, WORLD_HEIGHT, None)
+            self.update_world_thread = threading.Thread(target=update_world, args=(self,), daemon=True)
+            self.update_world_thread.start()
+        index = len(self.world.spaceships)
+        spaceship = Spaceship(self.world, 99, index * 150 + 100, index)
+        spaceship.name = client.name
+        self.world.spaceships_by_id[client.id] = spaceship
+
+    def disconnect(self, client_id):
+        del self.clients[client_id]
+        spaceship = self.world.spaceships_by_id[client_id]
+        del self.world.spaceships_by_id[client_id]
+        self.world.spaceships.remove(spaceship)
+        if len(self.clients) == 0:
+            self.world = None
 
 if __name__ == "__main__":
     s = Server()
