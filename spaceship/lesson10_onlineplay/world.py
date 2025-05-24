@@ -1,6 +1,7 @@
 import random
 import time
-from spaceship import Monster
+from spaceship import *
+
 
 class World:
     def __init__(self, width, height, font, num_player):
@@ -15,13 +16,15 @@ class World:
 
         self.gameover = False
 
-        self.spaceships = []
-        self.num_player = num_player
+        self.spaceships = {}
 
     def add(self, obj):
         self.objects.append(obj)
         if type(obj).__name__ == 'Spaceship':
-            self.spaceships.append(obj)
+            if obj.name is None:
+                obj.name = "Player {}".format(len(self.spaceships) + 1)
+            obj.color_type = len(self.spaceships)
+            self.spaceships[obj.name] = obj
 
     def remove(self, obj):
         self.to_remove.add(obj)
@@ -51,10 +54,11 @@ class World:
         for obj in self.objects:
             obj.draw(window)
         # Draw the scores
-        if self.num_player == 1:
+        if len(self.spaceships) == 1:
             window.blit(self.font.render("Score: {}".format(self.spaceships[0].score), 0, (255, 240, 230)), (10, 10))
         else:
-            window.blit(self.font.render("Player 1 Score: {}, Player 2 Score: {}".format(self.spaceships[0].score, self.spaceships[1].score), 0, (255, 240, 230)), (10, 10))
+            score_string = ",".join(["{} Score: {}".format(v.name, v.score) for v in self.spaceships.values()])
+            window.blit(self.font.render(score_string, 0, (255, 240, 230)), (10, 10))
 
     def detect_impact(self):
         length = len(self.objects)
@@ -85,3 +89,37 @@ class ServerWorld(World):
     def draw(self, window):
         pass
 
+    def dump(self):
+        dumped_objects = []
+        for obj in self.objects:
+            dumped = {
+                "name": type(obj).__name__,
+                "x": obj.x,
+                "y": obj.y,
+                "width": obj.width,
+                "height": obj.height
+            }
+            if dumped["name"] == "Spaceship":
+                dumped["color_type"] = obj.color_type
+            dumped_objects.append(dumped)
+        dumped_objects
+
+class ClientWorld(World):
+    def __init__(self, width, height, font):
+        super().__init__(self, width, height, font, 1)
+
+    # Client World does not need to update anything
+    def update(self):
+        pass
+
+    def load(self, objs):
+        self.objects.clear()
+        self.spaceships.clear()
+        for obj in objs:
+            x, y, width, height = obj["x"], obj["y"], obj["width"], obj["height"]
+            if obj["name"] == "Bullet":
+                Bullet(self, x, y, width, height)
+            elif obj["name"] == "Spaceship":
+                Spaceship(self, x, y, obj["color_type"])
+            elif obj["name"] == "Monster":
+                Monster(self, x, y)

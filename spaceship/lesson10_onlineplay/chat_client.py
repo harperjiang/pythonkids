@@ -11,7 +11,7 @@ PORT = 65432       # Server port
 
 send_queue = queue.Queue()
 
-def talk_to_server():
+def talk_to_server(socket):
     while True:
         sleep(0.01)
         message_to_send = []
@@ -20,8 +20,8 @@ def talk_to_server():
         if len(message_to_send) == 0:
             message_to_send.append(SyncRequest())
         try:
-            s.sendall(pickle.dumps(message_to_send))
-            data = s.recv(32768)
+            socket.sendall(pickle.dumps(message_to_send))
+            data = socket.recv(32768)
             resps = pickle.loads(data)
         except:
             pass
@@ -38,7 +38,7 @@ if __name__ == '__main__':
         s.connect((HOST, PORT))
         print("Connected to server")
 
-        threading.Thread(target = talk_to_server, daemon=True).start()
+        threading.Thread(target = talk_to_server, args={s,}, daemon=True).start()
         send_queue.put(NewPlayerRequest())
 
         while True:

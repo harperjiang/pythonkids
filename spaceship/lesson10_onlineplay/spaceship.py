@@ -47,11 +47,12 @@ class Object:
         self.world.remove(self)
 
 class Spaceship(Object):
-    def __init__(self, world, x, y, color_type):
+    def __init__(self, world, x, y, color_type, name = None):
         super().__init__(world, x, y, 120, 90)
         self.score = 0
         self.lives = 3
         self.color_type = color_type
+        self.name = name
 
     def draw(self, window):
         if self.color_type == 0:

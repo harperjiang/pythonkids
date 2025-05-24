@@ -3,10 +3,10 @@ import queue
 import socket
 import threading
 import uuid
-from time import sleep
 
 from message import *
-from world import ServerWorld, World
+from world import *
+from spaceship import *
 
 NAMES = {"StoutBog", "WornFlower", "SadDolphin", "SmileHog", "BurnCarrot"}
 
@@ -36,12 +36,13 @@ def execute_messages(server):
         (_, sender) = server.clients[message.owner]
         if isinstance(message, NewPlayerRequest):
             print(f"New player {sender.name}")
+            server.joingame(sender)
             server.send(TextResponse(f"Welcome, {sender.name}", owner = sender.id))
         elif isinstance(message, TextRequest):
             print(f"{sender.name} said: {message.text}")
             server.send(TextResponse(f"{sender.name} said:{message.text}", owner = None))
         elif isinstance(message, SyncRequest):
-            server.send(SyncResponse(owner = sender.id))
+            server.send(SyncResponse(owner = sender.id, objs = server.world.dump()))
         else:
             pass
 
@@ -55,7 +56,7 @@ class ClientStub:
         self.resp_queue = resp_queue
 
     def close(self):
-        del self.server.clients[self.id]
+        self.server.disconnect(self.id)
         NAMES.add(self.name)
 
 class Server:
@@ -95,6 +96,18 @@ class Server:
         else:
             for (thread, stub) in self.clients.values():
                 stub.resp_queue.put(msg)
+
+    def joingame(self, client):
+        if self.world is None:
+            self.world = ServerWorld(self)
+        index = len(self.world.spaceships)
+        spaceship = Spaceship(self.world, 99, index * 150 + 100, index)
+        spaceship.name = client.name
+
+    def disconnect(self, client_id):
+        del self.clients[client_id]
+        if len(self.clients) == 0:
+            self.world = None
 
 if __name__ == "__main__":
     s = Server()
